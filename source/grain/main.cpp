@@ -20,11 +20,15 @@ class CallServiceHandler : virtual public CallServiceIf {
     // Your initialization goes here
   }
 
-  void call(ReturnItem& _return, const std::vector<ValueItem> & params) {
+  void call(const std::vector<ValueItem> & params) {
     // Your implementation goes here
     printf("call\n");
   }
 
+  void ret(const ReturnItem& value) {
+      // Your implementation goes here
+      printf("ret\n");
+  }
 };
 
 int main(int argc, char **argv) {

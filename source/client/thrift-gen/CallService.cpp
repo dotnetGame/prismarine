@@ -116,11 +116,11 @@ uint32_t CallService_call_pargs::write(::apache::thrift::protocol::TProtocol* op
 }
 
 
-CallService_call_result::~CallService_call_result() noexcept {
+CallService_ret_args::~CallService_ret_args() noexcept {
 }
 
 
-uint32_t CallService_call_result::read(::apache::thrift::protocol::TProtocol* iprot) {
+uint32_t CallService_ret_args::read(::apache::thrift::protocol::TProtocol* iprot) {
 
   ::apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
   uint32_t xfer = 0;
@@ -141,10 +141,10 @@ uint32_t CallService_call_result::read(::apache::thrift::protocol::TProtocol* ip
     }
     switch (fid)
     {
-      case 0:
+      case 1:
         if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += this->success.read(iprot);
-          this->__isset.success = true;
+          xfer += this->value.read(iprot);
+          this->__isset.value = true;
         } else {
           xfer += iprot->skip(ftype);
         }
@@ -161,78 +161,48 @@ uint32_t CallService_call_result::read(::apache::thrift::protocol::TProtocol* ip
   return xfer;
 }
 
-uint32_t CallService_call_result::write(::apache::thrift::protocol::TProtocol* oprot) const {
-
+uint32_t CallService_ret_args::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
+  ::apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("CallService_ret_args");
 
-  xfer += oprot->writeStructBegin("CallService_call_result");
+  xfer += oprot->writeFieldBegin("value", ::apache::thrift::protocol::T_STRUCT, 1);
+  xfer += this->value.write(oprot);
+  xfer += oprot->writeFieldEnd();
 
-  if (this->__isset.success) {
-    xfer += oprot->writeFieldBegin("success", ::apache::thrift::protocol::T_STRUCT, 0);
-    xfer += this->success.write(oprot);
-    xfer += oprot->writeFieldEnd();
-  }
   xfer += oprot->writeFieldStop();
   xfer += oprot->writeStructEnd();
   return xfer;
 }
 
 
-CallService_call_presult::~CallService_call_presult() noexcept {
+CallService_ret_pargs::~CallService_ret_pargs() noexcept {
 }
 
 
-uint32_t CallService_call_presult::read(::apache::thrift::protocol::TProtocol* iprot) {
-
-  ::apache::thrift::protocol::TInputRecursionTracker tracker(*iprot);
+uint32_t CallService_ret_pargs::write(::apache::thrift::protocol::TProtocol* oprot) const {
   uint32_t xfer = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TType ftype;
-  int16_t fid;
+  ::apache::thrift::protocol::TOutputRecursionTracker tracker(*oprot);
+  xfer += oprot->writeStructBegin("CallService_ret_pargs");
 
-  xfer += iprot->readStructBegin(fname);
+  xfer += oprot->writeFieldBegin("value", ::apache::thrift::protocol::T_STRUCT, 1);
+  xfer += (*(this->value)).write(oprot);
+  xfer += oprot->writeFieldEnd();
 
-  using ::apache::thrift::protocol::TProtocolException;
-
-
-  while (true)
-  {
-    xfer += iprot->readFieldBegin(fname, ftype, fid);
-    if (ftype == ::apache::thrift::protocol::T_STOP) {
-      break;
-    }
-    switch (fid)
-    {
-      case 0:
-        if (ftype == ::apache::thrift::protocol::T_STRUCT) {
-          xfer += (*(this->success)).read(iprot);
-          this->__isset.success = true;
-        } else {
-          xfer += iprot->skip(ftype);
-        }
-        break;
-      default:
-        xfer += iprot->skip(ftype);
-        break;
-    }
-    xfer += iprot->readFieldEnd();
-  }
-
-  xfer += iprot->readStructEnd();
-
+  xfer += oprot->writeFieldStop();
+  xfer += oprot->writeStructEnd();
   return xfer;
 }
 
-void CallServiceClient::call(ReturnItem& _return, const std::vector<ValueItem> & params)
+void CallServiceClient::call(const std::vector<ValueItem> & params)
 {
   send_call(params);
-  recv_call(_return);
 }
 
 void CallServiceClient::send_call(const std::vector<ValueItem> & params)
 {
   int32_t cseqid = 0;
-  oprot_->writeMessageBegin("call", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("call", ::apache::thrift::protocol::T_ONEWAY, cseqid);
 
   CallService_call_pargs args;
   args.params = &params;
@@ -243,42 +213,23 @@ void CallServiceClient::send_call(const std::vector<ValueItem> & params)
   oprot_->getTransport()->flush();
 }
 
-void CallServiceClient::recv_call(ReturnItem& _return)
+void CallServiceClient::ret(const ReturnItem& value)
 {
+  send_ret(value);
+}
 
-  int32_t rseqid = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TMessageType mtype;
+void CallServiceClient::send_ret(const ReturnItem& value)
+{
+  int32_t cseqid = 0;
+  oprot_->writeMessageBegin("ret", ::apache::thrift::protocol::T_ONEWAY, cseqid);
 
-  iprot_->readMessageBegin(fname, mtype, rseqid);
-  if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
-    ::apache::thrift::TApplicationException x;
-    x.read(iprot_);
-    iprot_->readMessageEnd();
-    iprot_->getTransport()->readEnd();
-    throw x;
-  }
-  if (mtype != ::apache::thrift::protocol::T_REPLY) {
-    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-    iprot_->readMessageEnd();
-    iprot_->getTransport()->readEnd();
-  }
-  if (fname.compare("call") != 0) {
-    iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-    iprot_->readMessageEnd();
-    iprot_->getTransport()->readEnd();
-  }
-  CallService_call_presult result;
-  result.success = &_return;
-  result.read(iprot_);
-  iprot_->readMessageEnd();
-  iprot_->getTransport()->readEnd();
+  CallService_ret_pargs args;
+  args.value = &value;
+  args.write(oprot_);
 
-  if (result.__isset.success) {
-    // _return pointer has now been filled
-    return;
-  }
-  throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "call failed: unknown result");
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 }
 
 bool CallServiceProcessor::dispatchCall(::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, const std::string& fname, int32_t seqid, void* callContext) {
@@ -300,7 +251,7 @@ bool CallServiceProcessor::dispatchCall(::apache::thrift::protocol::TProtocol* i
   return true;
 }
 
-void CallServiceProcessor::process_call(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext)
+void CallServiceProcessor::process_call(int32_t, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol*, void* callContext)
 {
   void* ctx = NULL;
   if (this->eventHandler_.get() != NULL) {
@@ -321,37 +272,57 @@ void CallServiceProcessor::process_call(int32_t seqid, ::apache::thrift::protoco
     this->eventHandler_->postRead(ctx, "CallService.call", bytes);
   }
 
-  CallService_call_result result;
   try {
-    iface_->call(result.success, args.params);
-    result.__isset.success = true;
-  } catch (const std::exception& e) {
+    iface_->call(args.params);
+  } catch (const std::exception&) {
     if (this->eventHandler_.get() != NULL) {
       this->eventHandler_->handlerError(ctx, "CallService.call");
     }
-
-    ::apache::thrift::TApplicationException x(e.what());
-    oprot->writeMessageBegin("call", ::apache::thrift::protocol::T_EXCEPTION, seqid);
-    x.write(oprot);
-    oprot->writeMessageEnd();
-    oprot->getTransport()->writeEnd();
-    oprot->getTransport()->flush();
     return;
   }
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->preWrite(ctx, "CallService.call");
+    this->eventHandler_->asyncComplete(ctx, "CallService.call");
   }
 
-  oprot->writeMessageBegin("call", ::apache::thrift::protocol::T_REPLY, seqid);
-  result.write(oprot);
-  oprot->writeMessageEnd();
-  bytes = oprot->getTransport()->writeEnd();
-  oprot->getTransport()->flush();
+  return;
+}
+
+void CallServiceProcessor::process_ret(int32_t, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol*, void* callContext)
+{
+  void* ctx = NULL;
+  if (this->eventHandler_.get() != NULL) {
+    ctx = this->eventHandler_->getContext("CallService.ret", callContext);
+  }
+  ::apache::thrift::TProcessorContextFreer freer(this->eventHandler_.get(), ctx, "CallService.ret");
 
   if (this->eventHandler_.get() != NULL) {
-    this->eventHandler_->postWrite(ctx, "CallService.call", bytes);
+    this->eventHandler_->preRead(ctx, "CallService.ret");
   }
+
+  CallService_ret_args args;
+  args.read(iprot);
+  iprot->readMessageEnd();
+  uint32_t bytes = iprot->getTransport()->readEnd();
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->postRead(ctx, "CallService.ret", bytes);
+  }
+
+  try {
+    iface_->ret(args.value);
+  } catch (const std::exception&) {
+    if (this->eventHandler_.get() != NULL) {
+      this->eventHandler_->handlerError(ctx, "CallService.ret");
+    }
+    return;
+  }
+
+  if (this->eventHandler_.get() != NULL) {
+    this->eventHandler_->asyncComplete(ctx, "CallService.ret");
+  }
+
+  return;
 }
 
 ::std::shared_ptr< ::apache::thrift::TProcessor > CallServiceProcessorFactory::getProcessor(const ::apache::thrift::TConnectionInfo& connInfo) {
@@ -361,17 +332,16 @@ void CallServiceProcessor::process_call(int32_t seqid, ::apache::thrift::protoco
   return processor;
 }
 
-void CallServiceConcurrentClient::call(ReturnItem& _return, const std::vector<ValueItem> & params)
+void CallServiceConcurrentClient::call(const std::vector<ValueItem> & params)
 {
-  int32_t seqid = send_call(params);
-  recv_call(_return, seqid);
+  send_call(params);
 }
 
-int32_t CallServiceConcurrentClient::send_call(const std::vector<ValueItem> & params)
+void CallServiceConcurrentClient::send_call(const std::vector<ValueItem> & params)
 {
-  int32_t cseqid = this->sync_->generateSeqId();
+  int32_t cseqid = 0;
   ::apache::thrift::async::TConcurrentSendSentry sentry(this->sync_.get());
-  oprot_->writeMessageBegin("call", ::apache::thrift::protocol::T_CALL, cseqid);
+  oprot_->writeMessageBegin("call", ::apache::thrift::protocol::T_ONEWAY, cseqid);
 
   CallService_call_pargs args;
   args.params = &params;
@@ -382,67 +352,28 @@ int32_t CallServiceConcurrentClient::send_call(const std::vector<ValueItem> & pa
   oprot_->getTransport()->flush();
 
   sentry.commit();
-  return cseqid;
 }
 
-void CallServiceConcurrentClient::recv_call(ReturnItem& _return, const int32_t seqid)
+void CallServiceConcurrentClient::ret(const ReturnItem& value)
 {
+  send_ret(value);
+}
 
-  int32_t rseqid = 0;
-  std::string fname;
-  ::apache::thrift::protocol::TMessageType mtype;
+void CallServiceConcurrentClient::send_ret(const ReturnItem& value)
+{
+  int32_t cseqid = 0;
+  ::apache::thrift::async::TConcurrentSendSentry sentry(this->sync_.get());
+  oprot_->writeMessageBegin("ret", ::apache::thrift::protocol::T_ONEWAY, cseqid);
 
-  // the read mutex gets dropped and reacquired as part of waitForWork()
-  // The destructor of this sentry wakes up other clients
-  ::apache::thrift::async::TConcurrentRecvSentry sentry(this->sync_.get(), seqid);
+  CallService_ret_pargs args;
+  args.value = &value;
+  args.write(oprot_);
 
-  while(true) {
-    if(!this->sync_->getPending(fname, mtype, rseqid)) {
-      iprot_->readMessageBegin(fname, mtype, rseqid);
-    }
-    if(seqid == rseqid) {
-      if (mtype == ::apache::thrift::protocol::T_EXCEPTION) {
-        ::apache::thrift::TApplicationException x;
-        x.read(iprot_);
-        iprot_->readMessageEnd();
-        iprot_->getTransport()->readEnd();
-        sentry.commit();
-        throw x;
-      }
-      if (mtype != ::apache::thrift::protocol::T_REPLY) {
-        iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-        iprot_->readMessageEnd();
-        iprot_->getTransport()->readEnd();
-      }
-      if (fname.compare("call") != 0) {
-        iprot_->skip(::apache::thrift::protocol::T_STRUCT);
-        iprot_->readMessageEnd();
-        iprot_->getTransport()->readEnd();
+  oprot_->writeMessageEnd();
+  oprot_->getTransport()->writeEnd();
+  oprot_->getTransport()->flush();
 
-        // in a bad state, don't commit
-        using ::apache::thrift::protocol::TProtocolException;
-        throw TProtocolException(TProtocolException::INVALID_DATA);
-      }
-      CallService_call_presult result;
-      result.success = &_return;
-      result.read(iprot_);
-      iprot_->readMessageEnd();
-      iprot_->getTransport()->readEnd();
-
-      if (result.__isset.success) {
-        // _return pointer has now been filled
-        sentry.commit();
-        return;
-      }
-      // in a bad state, don't commit
-      throw ::apache::thrift::TApplicationException(::apache::thrift::TApplicationException::MISSING_RESULT, "call failed: unknown result");
-    }
-    // seqid != rseqid
-    this->sync_->updatePending(fname, mtype, rseqid);
-
-    // this will temporarily unlock the readMutex, and let other clients get work done
-    this->sync_->waitForWork(seqid);
-  } // end while(true)
+  sentry.commit();
 }
 
 } // namespace

@@ -11,5 +11,6 @@ struct ReturnItem {
 }
 
 service CallService {
-    ReturnItem call(1:list<ValueItem> params),
+    oneway void call(1:list<ValueItem> params),
+    oneway void ret(1:ReturnItem value),
 }

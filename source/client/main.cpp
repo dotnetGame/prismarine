@@ -25,9 +25,9 @@ int main()
     try {
         transport->open();
 
-        prismarine::ReturnItem ret;
         std::vector<prismarine::ValueItem> params;
-        client.call(ret, params);
+
+        client.call(params);
 
         transport->close();
     } catch (TException& tx) {

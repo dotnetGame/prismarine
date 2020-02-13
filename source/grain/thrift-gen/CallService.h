@@ -22,7 +22,8 @@ namespace prismarine {
 class CallServiceIf {
  public:
   virtual ~CallServiceIf() {}
-  virtual void call(ReturnItem& _return, const std::vector<ValueItem> & params) = 0;
+  virtual void call(const std::vector<ValueItem> & params) = 0;
+  virtual void ret(const ReturnItem& value) = 0;
 };
 
 class CallServiceIfFactory {
@@ -52,7 +53,10 @@ class CallServiceIfSingletonFactory : virtual public CallServiceIfFactory {
 class CallServiceNull : virtual public CallServiceIf {
  public:
   virtual ~CallServiceNull() {}
-  void call(ReturnItem& /* _return */, const std::vector<ValueItem> & /* params */) {
+  void call(const std::vector<ValueItem> & /* params */) {
+    return;
+  }
+  void ret(const ReturnItem& /* value */) {
     return;
   }
 };
@@ -106,58 +110,52 @@ class CallService_call_pargs {
 
 };
 
-typedef struct _CallService_call_result__isset {
-  _CallService_call_result__isset() : success(false) {}
-  bool success :1;
-} _CallService_call_result__isset;
+typedef struct _CallService_ret_args__isset {
+  _CallService_ret_args__isset() : value(false) {}
+  bool value :1;
+} _CallService_ret_args__isset;
 
-class CallService_call_result {
+class CallService_ret_args {
  public:
 
-  CallService_call_result(const CallService_call_result&);
-  CallService_call_result& operator=(const CallService_call_result&);
-  CallService_call_result() {
+  CallService_ret_args(const CallService_ret_args&);
+  CallService_ret_args& operator=(const CallService_ret_args&);
+  CallService_ret_args() {
   }
 
-  virtual ~CallService_call_result() noexcept;
-  ReturnItem success;
+  virtual ~CallService_ret_args() noexcept;
+  ReturnItem value;
 
-  _CallService_call_result__isset __isset;
+  _CallService_ret_args__isset __isset;
 
-  void __set_success(const ReturnItem& val);
+  void __set_value(const ReturnItem& val);
 
-  bool operator == (const CallService_call_result & rhs) const
+  bool operator == (const CallService_ret_args & rhs) const
   {
-    if (!(success == rhs.success))
+    if (!(value == rhs.value))
       return false;
     return true;
   }
-  bool operator != (const CallService_call_result &rhs) const {
+  bool operator != (const CallService_ret_args &rhs) const {
     return !(*this == rhs);
   }
 
-  bool operator < (const CallService_call_result & ) const;
+  bool operator < (const CallService_ret_args & ) const;
 
   uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
   uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
-typedef struct _CallService_call_presult__isset {
-  _CallService_call_presult__isset() : success(false) {}
-  bool success :1;
-} _CallService_call_presult__isset;
 
-class CallService_call_presult {
+class CallService_ret_pargs {
  public:
 
 
-  virtual ~CallService_call_presult() noexcept;
-  ReturnItem* success;
+  virtual ~CallService_ret_pargs() noexcept;
+  const ReturnItem* value;
 
-  _CallService_call_presult__isset __isset;
-
-  uint32_t read(::apache::thrift::protocol::TProtocol* iprot);
+  uint32_t write(::apache::thrift::protocol::TProtocol* oprot) const;
 
 };
 
@@ -186,9 +184,10 @@ class CallServiceClient : virtual public CallServiceIf {
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void call(ReturnItem& _return, const std::vector<ValueItem> & params);
+  void call(const std::vector<ValueItem> & params);
   void send_call(const std::vector<ValueItem> & params);
-  void recv_call(ReturnItem& _return);
+  void ret(const ReturnItem& value);
+  void send_ret(const ReturnItem& value);
  protected:
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
@@ -205,10 +204,12 @@ class CallServiceProcessor : public ::apache::thrift::TDispatchProcessor {
   typedef std::map<std::string, ProcessFunction> ProcessMap;
   ProcessMap processMap_;
   void process_call(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
+  void process_ret(int32_t seqid, ::apache::thrift::protocol::TProtocol* iprot, ::apache::thrift::protocol::TProtocol* oprot, void* callContext);
  public:
   CallServiceProcessor(::std::shared_ptr<CallServiceIf> iface) :
     iface_(iface) {
     processMap_["call"] = &CallServiceProcessor::process_call;
+    processMap_["ret"] = &CallServiceProcessor::process_ret;
   }
 
   virtual ~CallServiceProcessor() {}
@@ -237,14 +238,22 @@ class CallServiceMultiface : virtual public CallServiceIf {
     ifaces_.push_back(iface);
   }
  public:
-  void call(ReturnItem& _return, const std::vector<ValueItem> & params) {
+  void call(const std::vector<ValueItem> & params) {
     size_t sz = ifaces_.size();
     size_t i = 0;
     for (; i < (sz - 1); ++i) {
-      ifaces_[i]->call(_return, params);
+      ifaces_[i]->call(params);
     }
-    ifaces_[i]->call(_return, params);
-    return;
+    ifaces_[i]->call(params);
+  }
+
+  void ret(const ReturnItem& value) {
+    size_t sz = ifaces_.size();
+    size_t i = 0;
+    for (; i < (sz - 1); ++i) {
+      ifaces_[i]->ret(value);
+    }
+    ifaces_[i]->ret(value);
   }
 
 };
@@ -279,9 +288,10 @@ class CallServiceConcurrentClient : virtual public CallServiceIf {
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> getOutputProtocol() {
     return poprot_;
   }
-  void call(ReturnItem& _return, const std::vector<ValueItem> & params);
-  int32_t send_call(const std::vector<ValueItem> & params);
-  void recv_call(ReturnItem& _return, const int32_t seqid);
+  void call(const std::vector<ValueItem> & params);
+  void send_call(const std::vector<ValueItem> & params);
+  void ret(const ReturnItem& value);
+  void send_ret(const ReturnItem& value);
  protected:
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> piprot_;
   std::shared_ptr< ::apache::thrift::protocol::TProtocol> poprot_;
