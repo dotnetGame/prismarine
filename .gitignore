@@ -350,6 +350,6 @@ MigrationBackup/
 .ionide/
 
 
-
+.vscode/
 build/
 *.txt
