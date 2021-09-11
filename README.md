@@ -1,2 +1,2 @@
-# emerald
- Experimental next-generation MineCase
+# MineCase (Prismarine)
+Experimental next-generation MineCase
